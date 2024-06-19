@@ -1,0 +1,35 @@
+name: Build oled_hijack.so
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up ARM GCC
+      uses: ArmMbed/setup-arm-toolchain@v1
+      with:
+        toolchain: gcc
+        version: '10.3-2021.07'
+
+    - name: Install Dependencies
+      run: sudo apt-get install -y gcc-arm-linux-androideabi
+
+    - name: Build oled_hijack.so
+      run: arm-linux-androideabi-gcc -shared -ldl -fPIC -O2 -s -D__ANDROID_API__=19 -DMENU_UNLOCK -DNET_UPDOWN -o oled_hijack.so oled_hijack_so.c
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: oled_hijack
+        path: oled_hijack.so
