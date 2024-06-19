@@ -1,0 +1,43 @@
+name: Build2 oled_hijack.so
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install ARM GCC
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget tar
+        wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
+        tar -xjf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
+        export PATH=$PATH:$PWD/gcc-arm-none-eabi-10.3-2021.10/bin
+
+    - name: Install ARM Linux Toolchain
+      run: |
+        wget https://dl.google.com/android/repository/android-ndk-r21d-linux-x86_64.zip
+        unzip android-ndk-r21d-linux-x86_64.zip
+        export ANDROID_NDK_HOME=$PWD/android-ndk-r21d
+        export PATH=$PATH:$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
+
+    - name: Build oled_hijack.so
+      run: |
+        armv7a-linux-androideabi19-clang -shared -ldl -fPIC -O2 -s -D__ANDROID_API__=19 -DMENU_UNLOCK -DNET_UPDOWN -o oled_hijack.so oled_hijack_so.c
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: oled_hijack
+        path: oled_hijack.so
