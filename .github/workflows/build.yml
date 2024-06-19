@@ -23,8 +23,8 @@ jobs:
         toolchain: gcc
         version: '10.3-2021.07'
 
-    - name: Install Dependencies
-      run: sudo apt-get install -y gcc-arm-linux-androideabi
+        #  - name: Install Dependencies
+        #    run: sudo apt-get install -y gcc-arm-linux-androideabi
 
     - name: Build oled_hijack.so
       run: arm-linux-androideabi-gcc -shared -ldl -fPIC -O2 -s -D__ANDROID_API__=19 -DMENU_UNLOCK -DNET_UPDOWN -o oled_hijack.so oled_hijack_so.c
