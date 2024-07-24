@@ -1,4 +1,36 @@
-name: Build oled_hijack.so
+# name: Build oled_hijack.so
+#
+# on:
+#   push:
+#     branches:
+#       - master
+#   pull_request:
+#     branches:
+#       - master
+#   workflow_dispatch:
+#
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v3
+#
+#
+#     - name: Install Dependencies
+#       run: sudo apt-get install -y clang ndk-multilib
+#
+#     - name: Build oled_hijack.so
+#       run: clang --target=arm-linux-androideabi -shared -ldl -fPIC -O2 -s -D__ANDROID_API__=19 -DMENU_UNLOCK -DNET_UPDOWN -o oled_hijack.so oled_hijack_so.c
+#
+#     - name: Upload artifact
+#       uses: actions/upload-artifact@v3
+#       with:
+#         name: oled_hijack
+#         path: oled_hijack.so
+#
+# name: Build oled_hijack.so
 
 on:
   push:
@@ -14,18 +46,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
+      - name: Set up NDK
+        uses: android-actions/setup-ndk@v1
+        with:
+          ndk-version: "r16b" # Adjust if needed
 
-    - name: Install Dependencies
-      run: sudo apt-get install -y clang ndk-multilib
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-4.9 g++-4.9
 
-    - name: Build oled_hijack.so
-      run: clang --target=arm-linux-androideabi -shared -ldl -fPIC -O2 -s -D__ANDROID_API__=19 -DMENU_UNLOCK -DNET_UPDOWN -o oled_hijack.so oled_hijack_so.c
+      - name: Build oled_hijack.so
+        run: |
+          export CC=gcc-4.9
+          export CXX=g++-4.9
+          cd path/to/your/source # Adjust to your source directory
+          ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk APP_ABI=armeabi-v7a
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: oled_hijack
-        path: oled_hijack.so
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: oled_hijack.so
+          path: oled_hijack.so # Adjust to your output directory
